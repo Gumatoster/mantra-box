@@ -362,7 +362,7 @@ const mineSource = {
     const folder = (window.MOJE_DZWIEKI || []).map(file => ({
       id: 'folder:' + file,
       name: file.replace(/\.[^.]+$/, ''),
-      url: 'dzwieki/' + encodeURIComponent(file),
+      url: 'dzwieki/' + encodeURIComponent(file.normalize('NFC')),
       folder: true,
     }));
     let saved = [];

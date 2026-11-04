@@ -1,5 +1,5 @@
 // Pozwala aplikacji działać bez internetu (po pierwszym otwarciu).
-const CACHE = 'mantra-box-v2-2';
+const CACHE = 'mantra-box-v2-3';
 const FILES = [
   './', 'index.html', 'app.js', 'manifest.webmanifest', 'dzwieki/lista.js',
   'ikony/ikona.svg', 'ikony/ikona-180.png', 'ikony/ikona-192.png', 'ikony/ikona-512.png',
