@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mantra Box</title>
+
+<!-- Dzięki tym liniom stronę można „zainstalować” jako aplikację na Macu i iPhonie -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="ikony/ikona.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="ikony/ikona-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mantra Box">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#9c2f1f">
+
+<style>
+  :root {
+    --bg: #e9e4da;
+    --box: #c9442e;
+    --box-dark: #9c2f1f;
+    --grille: #d9563f;
+    --ink: #2b211c;
+    --screen: #1d1a17;
+    --led: #ffb347;
+    --key: #f3ece2;
+    --key-shadow: #b9ad9c;
+    --text-on-box: #fbeee6;
+  }
+  /* Każda zakładka ma swój kolor pudełka */
+  .box[data-track="1"] { --box: #3b4f86; --box-dark: #26345c; --grille: #4a5f9a; --led: #a9c4ff; }
+  .box[data-track="2"] { --box: #2f6f68; --box-dark: #1f4a45; --grille: #3b8178; --led: #9ff0d8; }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+    color: var(--ink);
+    padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .box {
+    width: min(340px, 100%);
+    background: linear-gradient(160deg, var(--box), var(--box-dark));
+    border-radius: 28px;
+    padding: 24px 22px 20px;
+    box-shadow: 0 24px 50px rgba(60, 30, 20, .35), inset 0 2px 0 rgba(255,255,255,.25);
+    transition: background .4s;
+  }
+
+  .tracks { display: flex; gap: 6px; margin-bottom: 18px; }
+  .tab {
+    flex: 1;
+    font-size: 12px;
+    padding: 8px 2px;
+    border-radius: 10px;
+    background: rgba(0,0,0,.18);
+    color: var(--text-on-box);
+    box-shadow: none;
+  }
+  .tab.active { background: var(--key); color: var(--ink); font-weight: 600; }
+  /* kropka = ta zakładka teraz gra */
+  .tab::after {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    margin-left: 5px;
+    border-radius: 50%;
+    vertical-align: middle;
+    background: currentColor;
+    opacity: .2;
+  }
+  .tab.on::after { background: #ffc24a; opacity: 1; box-shadow: 0 0 6px #ffc24a; }
+
+  .grille {
+    aspect-ratio: 1;
+    width: 72%;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, rgba(0,0,0,.45) 2.2px, transparent 2.6px) 0 0 / 14px 14px,
+      radial-gradient(circle at 35% 30%, var(--grille), var(--box-dark));
+    box-shadow: inset 0 4px 12px rgba(0,0,0,.35);
+  }
+  .any .grille { animation: breathe 4s ease-in-out infinite; }
+  @keyframes breathe { 50% { transform: scale(1.025); } }
+
+  .screen {
+    background: var(--screen);
+    color: var(--led);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 15px;
+    margin-bottom: 16px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.6);
+  }
+  #name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .led { width: 9px; height: 9px; border-radius: 50%; background: #4a3a2a; flex: none; }
+  .playing .led { background: var(--led); box-shadow: 0 0 8px var(--led); }
+
+  .buttons { display: flex; gap: 10px; margin-bottom: 14px; }
+  button {
+    flex: 1;
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 0;
+    font-size: 18px;
+    font-family: inherit;
+    background: var(--key);
+    color: var(--ink);
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--key-shadow);
+  }
+  button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--key-shadow); }
+  #play { flex: 1.6; font-weight: 600; font-size: 16px; }
+
+  .mine-row { display: flex; gap: 8px; }
+  .mine-row button { font-size: 13px; padding: 10px 0; }
+  #rec.on { background: #ff5a4e; color: #fff; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .75; } }
+  .info { color: var(--text-on-box); opacity: .85; font-size: 12px; line-height: 1.4; margin: 10px 2px 4px; min-height: 1.4em; }
+
+  label {
+    display: grid;
+    grid-template-columns: 78px 1fr;
+    align-items: center;
+    color: var(--text-on-box);
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  .with-name { display: flex; align-items: center; gap: 8px; }
+  .with-name input { flex: 1; min-width: 0; }
+  #revName { width: 58px; text-align: right; font-size: 11px; opacity: .85; }
+  input[type=range] { width: 100%; accent-color: var(--key); }
+
+  #stopAll {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    padding: 9px 0;
+    font-size: 13px;
+    background: rgba(0,0,0,.2);
+    color: var(--text-on-box);
+    box-shadow: none;
+  }
+  #stopAll:disabled { opacity: .4; cursor: default; }
+  .hint { text-align: center; color: var(--text-on-box); opacity: .65; font-size: 11px; margin-top: 12px; }
+  @media (hover: none) { .hint { display: none; } }
+</style>
+</head>
+<body>
+  <div class="box" id="box" data-track="0">
+    <nav class="tracks">
+      <button class="tab" data-track="0">Pętle 1</button>
+      <button class="tab" data-track="1">Pętle 2</button>
+      <button class="tab" data-track="2">Moje dźwięki</button>
+    </nav>
+
+    <div class="grille"></div>
+
+    <div class="screen">
+      <span id="name">—</span>
+      <span id="num"></span>
+      <span class="led"></span>
+    </div>
+
+    <div class="buttons">
+      <button id="prev" title="Poprzedni">◀</button>
+      <button id="play">▶ Graj</button>
+      <button id="next" title="Następny">▶</button>
+    </div>
+
+    <!-- Tylko dla zakładki „Moje dźwięki” -->
+    <div id="mine" hidden>
+      <div class="mine-row">
+        <button id="rec">● Nagraj</button>
+        <button id="add">＋ Dodaj pliki</button>
+        <button id="del">Usuń</button>
+      </div>
+      <input id="file" type="file" accept="audio/*,.wav,.mp3,.m4a,.aiff" multiple hidden>
+      <p class="info" id="info"></p>
+    </div>
+
+    <label>Głośność <input id="vol" type="range" min="0" max="1" step="0.01" value="0.7"></label>
+    <label>Wysokość <input id="pitch" type="range" min="0.5" max="1.5" step="0.01" value="1"></label>
+    <label>Pogłos
+      <span class="with-name">
+        <input id="rev" type="range" min="0" max="1" step="0.01" value="0.45">
+        <small id="revName">Sala</small>
+      </span>
+    </label>
+
+    <button id="stopAll" disabled>■ Zatrzymaj wszystko</button>
+    <div class="hint">Spacja: graj/stop · ← →: zmiana · 1 2 3: zakładka · Esc: wszystko stop</div>
+  </div>
+
+  <!-- Lista plików z folderu „dzwieki” (tworzy ją odswiez-dzwieki.command) -->
+  <script src="dzwieki/lista.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

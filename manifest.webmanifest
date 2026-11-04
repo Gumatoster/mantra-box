@@ -1,0 +1,16 @@
+{
+  "name": "Mantra Box",
+  "short_name": "Mantra Box",
+  "description": "Medytacyjne pętle i własne dźwięki, grające razem, z pogłosem od lasu po kosmos.",
+  "lang": "pl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e9e4da",
+  "theme_color": "#9c2f1f",
+  "icons": [
+    { "src": "ikony/ikona-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "ikony/ikona-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "ikony/ikona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
